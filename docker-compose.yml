@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: agentic_ai_db
+    environment:
+      POSTGRES_USER: agentic
+      POSTGRES_PASSWORD: agentic123
+      POSTGRES_DB: agentic_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
