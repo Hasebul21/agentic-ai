@@ -15,27 +15,27 @@ load_dotenv()
 class Response(BaseModel):
     class CountryAudit(BaseModel):
         country: str = Field(description="Country name")
-        total_purchases: int = Field(description="Give me the total purchase of each country wise customer")
-        
+        total_purchases: int = Field(description="Total number of order items purchased by customers in this country")
+
     class CountryWiseSupplierAudit(BaseModel):
         country: str = Field(description="Country name")
-        total_supplier: int = Field(description="Give me the total order quantity of each country wise") 
-    
+        total_supplier: int = Field(description="Total number of order items for products supplied by suppliers in this country")
+
     class OrderStatusAudit(BaseModel):
         status: str = Field(description="Order status")
-        total_orders: int = Field(description="Give me the total order quantity of each status wise")
-        
+        total_orders: int = Field(description="Total number of orders with this status")
+
     summary: str
     country_audit: list[CountryAudit] = Field(
-        description="List of customers  with their total purchases"
+        description="Country-wise breakdown of total customer purchases, from get_purchases_by_customer_country"
     )
-    
+
     country_wise_supplier_audit: list[CountryWiseSupplierAudit] = Field(
-        description="List of suppliers  with their total order count"
+        description="Country-wise breakdown of total order items by supplier country, from get_order_items_by_supplier_country"
     )
-    
+
     order_status_audit: list[OrderStatusAudit] = Field(
-        description="List of orders  with their total count by status"
+        description="Breakdown of total orders by status, from get_order_count_by_status"
     )
     tools_used: list[str] = Field(
         default_factory=list,
@@ -52,9 +52,14 @@ user_prompt_content = """
 
 system_prompt_content = """
     You are a audit manager assistant for a company.
-    You will use accurate tools to query the database 
+    You will use accurate tools to query the database
     and provide the user valid answer what he asked for.
-    Dont Hellucinate or make up any answer. If you dont know the answer, 
+    For country-wise or status-wise totals and counts, always use the dedicated
+    aggregation tools (get_purchases_by_customer_country, get_order_items_by_supplier_country,
+    get_order_count_by_status) which return exact database-computed totals.
+    Never count or sum rows yourself from raw/detailed data - always rely on the
+    aggregation tool results for numeric totals.
+    Dont Hellucinate or make up any answer. If you dont know the answer,
     say "I dont know".
 """
 

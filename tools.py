@@ -40,15 +40,55 @@ def get_customer_by_country(country: str):
 def detailed_report(_: str = "") -> list:
     rows = run_sql(
         """
-        SELECT p.name as product_name, p.price as product_price, 
+        SELECT p.name as product_name, p.price as product_price,
         s."name" as supplier_name, s.country as supplier_country,
         oi.quantity as ordered_quantity, oi.unit_price as ordered_price, ord.total_amount as ordered_total_amount,
         ord.status as current_status, c.country as customer_country
-        FROM products p 
+        FROM products p
         JOIN suppliers s ON s.id = p.supplier_id
         JOIN order_items oi ON oi.product_id = p.id
         JOIN orders as ord ON ord.id = oi.order_id
         JOIN customers as c ON c.id = ord.customer_id
+        """
+    )
+    return rows
+
+
+def get_purchases_by_customer_country(_: str = "") -> list:
+    rows = run_sql(
+        """
+        SELECT c.country as country, COUNT(*) as total_purchases
+        FROM order_items oi
+        JOIN orders ord ON ord.id = oi.order_id
+        JOIN customers c ON c.id = ord.customer_id
+        GROUP BY c.country
+        ORDER BY c.country
+        """
+    )
+    return rows
+
+
+def get_order_items_by_supplier_country(_: str = "") -> list:
+    rows = run_sql(
+        """
+        SELECT s.country as country, COUNT(*) as total_order_items
+        FROM order_items oi
+        JOIN products p ON p.id = oi.product_id
+        JOIN suppliers s ON s.id = p.supplier_id
+        GROUP BY s.country
+        ORDER BY s.country
+        """
+    )
+    return rows
+
+
+def get_order_count_by_status(_: str = "") -> list:
+    rows = run_sql(
+        """
+        SELECT status, COUNT(*) as total_orders
+        FROM orders
+        GROUP BY status
+        ORDER BY status
         """
     )
     return rows
@@ -70,8 +110,33 @@ find_customer_by_country_tool = Tool(
     description="Get all customers from a specific country.",
 )
 
+purchases_by_customer_country_tool = Tool(
+    name="get_purchases_by_customer_country",
+    func=get_purchases_by_customer_country,
+    description="Get the exact total number of order items (purchases) grouped by customer country. Use this for country-wise customer purchase totals instead of counting rows manually.",
+)
 
-tools = [top_inventory_tool, find_customer_by_country_tool, annual_report]
+order_items_by_supplier_country_tool = Tool(
+    name="get_order_items_by_supplier_country",
+    func=get_order_items_by_supplier_country,
+    description="Get the exact total number of order items grouped by supplier country. Use this for country-wise supplier audit totals instead of counting rows manually.",
+)
+
+order_count_by_status_tool = Tool(
+    name="get_order_count_by_status",
+    func=get_order_count_by_status,
+    description="Get the exact total number of orders grouped by order status. Use this for the order status audit instead of counting rows manually.",
+)
+
+
+tools = [
+    top_inventory_tool,
+    find_customer_by_country_tool,
+    annual_report,
+    purchases_by_customer_country_tool,
+    order_items_by_supplier_country_tool,
+    order_count_by_status_tool,
+]
 
 if __name__ == "__main__":
     res = detailed_report()
