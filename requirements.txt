@@ -1,12 +1,17 @@
 # LLM clients
 openai==2.44.0
 anthropic==0.113.0
+groq                     # Groq SDK (direct client)
 
 # Agent frameworks
 langchain==1.3.11
 langchain-community==0.4.2
 langchain-openai==1.3.3
 langchain-anthropic
+langchain-groq           # Groq LangChain integration
+langchain-deepseek       # DeepSeek LangChain integration
+langchain-google-genai   # Gemini LangChain integration
+langchain-openrouter     # OpenRouter LangChain integration
 langchain-text-splitters==1.1.2
 langgraph==1.2.7
 langsmith==0.9.4

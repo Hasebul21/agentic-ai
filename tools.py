@@ -1,6 +1,7 @@
 from db.raw import run_sql
 from langchain_core.tools import Tool
 
+
 def get_all_inventory(_: str = "") -> list:
     rows = run_sql("""
                    SELECT name, quantity FROM inventory
@@ -35,6 +36,28 @@ def get_customer_by_country(country: str):
     )
     return rows
 
+
+def detailed_report(_: str = "") -> list:
+    rows = run_sql(
+        """
+        SELECT p.name as product_name, p.price as product_price, 
+        s."name" as supplier_name, s.country as supplier_country,
+        oi.quantity as ordered_quantity, oi.unit_price as ordered_price, ord.total_amount as ordered_total_amount,
+        ord.status as current_status, c.country as customer_country
+        FROM products p 
+        JOIN suppliers s ON s.id = p.supplier_id
+        JOIN order_items oi ON oi.product_id = p.id
+        JOIN orders as ord ON ord.id = oi.order_id
+        JOIN customers as c ON c.id = ord.customer_id
+        """
+    )
+    return rows
+
+annual_report = Tool(
+    name="annual_report",
+    func=detailed_report,
+    description="Generate a detailed annual report including product, supplier, order, and customer information.",
+)
 top_inventory_tool = Tool(
     name="get_top_inventory",
     func=get_all_inventory,
@@ -47,8 +70,9 @@ find_customer_by_country_tool = Tool(
     description="Get all customers from a specific country.",
 )
 
-tools = [top_inventory_tool, find_customer_by_country_tool]
+
+tools = [top_inventory_tool, find_customer_by_country_tool, annual_report]
 
 if __name__ == "__main__":
-    res = get_all_inventory()
+    res = detailed_report()
     print(res)
