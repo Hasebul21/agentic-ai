@@ -44,6 +44,8 @@ python-dotenv>=1.0.0
 rich
 httpx
 requests
+pypdf
+text-splitters
 
 # Jupyter (requires Python >=3.10 — install separately after upgrading Python)
 # jupyter

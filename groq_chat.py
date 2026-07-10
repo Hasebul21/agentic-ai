@@ -1,7 +1,9 @@
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate, FewShotChatMessagePromptTemplate
-from langchain_core.output_parsers import StrOutputParser 
+from langchain_core.output_parsers import StrOutputParser
+
+from evaluator import evaluate_response, render_evaluation
 
 load_dotenv()
 
@@ -76,8 +78,12 @@ def outputParser():
     )
     output_parser = StrOutputParser()
     chain = prompt | llm | output_parser
+    question = "Give me a short and concise joke about programming?"
     result = chain.invoke({"topic": "programming"})
     print(result)
+
+    evaluation = evaluate_response(question, result)
+    render_evaluation(question, result, evaluation)
 
 if __name__ == "__main__":
     outputParser()
